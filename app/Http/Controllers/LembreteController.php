@@ -40,20 +40,36 @@ class LembreteController extends Controller
 
     public function delete(Request $request)
     {
-        $lembrete = Lembrete::destroy($request->id);
-        if($lembrete)
-        {
+        Lembrete::destroy($request->id);
+    }
+    
+    public function searchEdit(Request $request)
+    {
+        $lembrete = DB::table('lembrete')
+            ->orderBy('id','DESC')
+            ->where('id','=',$request->id)
+            ->get();
+
+        if($lembrete){
             return json_encode($lembrete);
         }
     }
 
-    public function search(Request $request)
+    public function edit(Request $request)
     {
-        $lembrete = DB::table('lembrete')
-            ->where('title','LIKE','%'.$request->title.'%')
-            ->get();
+        $lembrete = Lembrete::find($request->id);
+        $lembrete->title = $request->title;
+        $lembrete->date = $request->date;
+        $lembrete->text = $request->text;
+        $status = $lembrete->save();
 
-        if($lembrete){
+        if($status)
+        {
+            $lembrete = [
+                "title"=>$request->title,
+                "date"=>$request->date,
+                "text"=>$request->text
+            ];
             return json_encode($lembrete);
         }
     }
